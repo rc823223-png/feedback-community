@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — Community Voice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0b1f3a; --navy-light: #1a3a5c;
+      --gold: #c8973a; --gold-light: #e0b96a;
+      --cream: #fdf8f0; --white: #fff;
+      --ink: #0d1b2e; --muted: #6b7f96;
+      --border: #d4dde8; --red: #c0392b;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--navy);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      background-image:
+        radial-gradient(ellipse 70% 70% at 20% 30%, rgba(200,151,58,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 60% at 85% 80%, rgba(26,58,92,0.6) 0%, transparent 60%);
+    }
+
+    /* BG GRID */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(200,151,58,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,151,58,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .login-wrap {
+      width: 100%; max-width: 420px;
+      position: relative; z-index: 1;
+      animation: riseUp 0.5s ease both;
+    }
+    @keyframes riseUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+    /* TOP LABEL */
+    .login-eyebrow {
+      text-align: center; margin-bottom: 24px;
+    }
+    .login-eyebrow span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 700; color: var(--white);
+    }
+    .login-eyebrow span em { font-style: normal; color: var(--gold-light); }
+    .login-eyebrow p { font-size: 12px; color: rgba(255,255,255,0.28); margin-top: 5px; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* CARD */
+    .login-card {
+      background: var(--white); border-radius: 20px;
+      overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+    .login-card-top {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      padding: 32px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .login-card-top::before {
+      content: '🔐'; font-size: 56px;
+      display: block; margin-bottom: 12px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
+    .login-card-top::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 60% 30%, rgba(200,151,58,0.1), transparent 60%);
+    }
+    .login-card-top h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 700; color: var(--white);
+      position: relative; z-index: 1;
+    }
+    .login-card-top p {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      margin-top: 5px; position: relative; z-index: 1;
+    }
+    .login-body { padding: 32px; }
+
+    .err-box {
+      background: rgba(192,57,43,0.08); border: 1.5px solid rgba(192,57,43,0.25);
+      border-radius: 10px; color: var(--red);
+      padding: 12px 15px; font-size: 13px; margin-bottom: 20px; display: none;
+      align-items: center; gap: 9px;
+    }
+    .err-box.show { display: flex; animation: shake 0.35s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+    }
+
+    .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+    label { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+    .input-wrap { position: relative; }
+    .input-wrap .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; pointer-events: none;
+    }
+    input {
+      width: 100%; padding: 13px 16px 13px 42px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--ink);
+      background: #fafcff; outline: none; transition: all 0.2s;
+    }
+    input:focus { border-color: var(--navy); background: var(--white); box-shadow: 0 0 0 3px rgba(11,31,58,0.07); }
+
+    .btn-login {
+      width: 100%; padding: 14px;
+      background: var(--navy); color: var(--white);
+      border: none; border-radius: 50px;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 18px rgba(11,31,58,0.25);
+      margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px;
+      position: relative; overflow: hidden;
+    }
+    .btn-login::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(200,151,58,0.2), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(11,31,58,0.35); }
+    .btn-login:hover::after { opacity: 1; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .back-link {
+      display: block; text-align: center; margin-top: 18px;
+      font-size: 13px; color: rgba(255,255,255,0.3);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--gold-light); }
+
+    /* SECURITY BADGE */
+    .sec-badge {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 20px; font-size: 12px; color: rgba(255,255,255,0.2);
+    }
+    .sec-badge::before, .sec-badge::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-eyebrow">
+      <span>Community <em>Voice</em></span>
+      <p>Secure Admin Access</p>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-top">
+        <h1>Welcome Back</h1>
+        <p>Sign in to manage responses</p>
+      </div>
+      <div class="login-body">
+        <div class="err-box" id="errBox">
+          <span>⚠️</span><span id="errText">Invalid username or password.</span>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="username" placeholder="Enter admin username" autocomplete="username"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔑</span>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
+          </div>
+        </div>
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+          <span id="loginTxt">Sign In to Dashboard</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <a href="/" class="back-link">← Back to Feedback Form</a>
+    <div class="sec-badge">🔒 &nbsp; Secured &amp; Encrypted</div>
+  </div>
+
+  <script>
+    document.getElementById('password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+    async function doLogin() {
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('errBox');
+      err.classList.remove('show');
+      btn.disabled = true;
+      document.getElementById('loginTxt').textContent = 'Signing in…';
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = '/admin/dashboard';
+        } else {
+          document.getElementById('errText').textContent = data.error || 'Invalid credentials.';
+          err.classList.add('show');
+        }
+      } catch {
+        document.getElementById('errText').textContent = 'Server error. Please try again.';
+        err.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        document.getElementById('loginTxt').textContent = 'Sign In to Dashboard';
+      }
+    }
+  </script>
+</body>
+</html>

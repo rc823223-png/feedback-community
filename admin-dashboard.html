@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Community Voice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0b1f3a; --navy-mid: #122944; --navy-light: #1a3a5c;
+      --gold: #c8973a; --gold-light: #e0b96a;
+      --cream: #fdf8f0; --white: #fff;
+      --ink: #0d1b2e; --muted: #6b7f96; --border: #d4dde8;
+      --red: #c0392b; --green: #1a7a4a;
+      --bg: #f0f4f8;
+      --shadow-sm: 0 2px 8px rgba(11,31,58,0.07);
+      --shadow-md: 0 6px 24px rgba(11,31,58,0.11);
+    }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+    /* NAVBAR */
+    nav {
+      background: var(--navy); height: 64px; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+    }
+    nav::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--white); }
+    .nav-brand span { color: var(--gold-light); }
+    .nav-tag { font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; background: rgba(200,151,58,0.2); border: 1px solid rgba(200,151,58,0.3); color: var(--gold-light); padding: 3px 8px; border-radius: 4px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-btn { padding: 8px 18px; border-radius: 20px; border: none; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nb-outline { background: transparent; border: 1.5px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+    .nb-outline:hover { border-color: rgba(255,255,255,0.4); color: var(--white); }
+    .nb-gold { background: var(--gold); color: var(--navy); font-weight: 600; }
+    .nb-gold:hover { background: var(--gold-light); }
+
+    /* PAGE */
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 28px 60px; }
+    .page-title { margin-bottom: 24px; }
+    .page-title h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 900; color: var(--ink); }
+    .page-title p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* SECTION HEADING */
+    .section-heading {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px; font-weight: 700; color: var(--ink);
+      margin: 0 0 16px;
+    }
+    .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* STATS GRID */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+    .stat-card {
+      background: var(--white); border-radius: 16px;
+      padding: 22px 20px; box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    /* Response cards */
+    .stat-card.rc:nth-child(1)::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+    .stat-card.rc:nth-child(2)::before { background: linear-gradient(90deg, var(--navy), var(--navy-light)); }
+    .stat-card.rc:nth-child(3)::before { background: linear-gradient(90deg, var(--green), #27ae60); }
+    .stat-card.rc:nth-child(4)::before { background: linear-gradient(90deg, #8e44ad, #9b59b6); }
+    /* Visitor cards */
+    .stat-card.vc:nth-child(1)::before { background: linear-gradient(90deg, #2471a3, #3498db); }
+    .stat-card.vc:nth-child(2)::before { background: linear-gradient(90deg, #1a7a4a, #27ae60); }
+    .stat-card.vc:nth-child(3)::before { background: linear-gradient(90deg, #922b21, #e74c3c); }
+    .stat-card.vc:nth-child(4)::before { background: linear-gradient(90deg, #d4700a, #e8862a); }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+    .stat-icon { font-size: 26px; margin-bottom: 10px; }
+    .stat-val { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 900; color: var(--ink); line-height: 1; }
+    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+    .stat-note { font-size: 11px; color: #b0bec5; margin-top: 4px; }
+
+    /* TWO COL */
+    .two-col { display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* PANEL */
+    .panel { background: var(--white); border-radius: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+    .panel-head { padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; background: #fafcff; }
+    .panel-title { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+    .panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .p-btn { padding: 7px 15px; border-radius: 8px; border: none; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .pb-navy { background: var(--navy); color: var(--white); }
+    .pb-navy:hover { background: var(--navy-light); }
+    .pb-gold { background: var(--gold); color: var(--navy); font-weight: 600; }
+    .pb-gold:hover { background: var(--gold-light); }
+    .pb-outline { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+    .pb-outline:hover { border-color: var(--navy); color: var(--navy); }
+
+    /* FILTER */
+    .filter-bar { padding: 13px 22px; background: var(--cream); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .filter-bar input, .filter-bar select { padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; outline: none; background: var(--white); transition: border-color 0.2s; color: var(--ink); }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--navy); }
+    .filter-bar input { flex: 1; min-width: 160px; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: #f5f8fc; }
+    th { padding: 11px 16px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f5f8fc; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; background: rgba(11,31,58,0.07); color: var(--navy); margin: 2px 2px 2px 0; }
+    .td-anon { color: var(--muted); font-style: italic; font-size: 12px; }
+    .td-date { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .td-actions { display: flex; gap: 6px; }
+    .act-btn { width: 30px; height: 30px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
+    .ab-view { background: rgba(11,31,58,0.07); color: var(--navy); }
+    .ab-view:hover { background: rgba(11,31,58,0.15); }
+    .ab-del { background: rgba(192,57,43,0.07); color: var(--red); }
+    .ab-del:hover { background: rgba(192,57,43,0.15); }
+    .no-data { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
+
+    /* PAGINATION */
+    .pag { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--muted); flex-wrap: wrap; gap: 10px; background: #fafcff; }
+    .pag-btns { display: flex; gap: 6px; }
+    .pag-btn { padding: 7px 13px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--white); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s; color: var(--ink); }
+    .pag-btn:hover { border-color: var(--navy); color: var(--navy); }
+    .pag-btn.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .pag-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* INTEREST CHART */
+    .int-chart { padding: 18px 22px; display: flex; flex-direction: column; gap: 11px; }
+    .int-bar-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .int-bar-name { font-size: 13px; font-weight: 500; }
+    .int-bar-count { font-size: 12px; color: var(--muted); }
+    .int-bar-track { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .int-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--navy), var(--navy-light)); transition: width 1s ease; }
+
+    /* CLASS LIST */
+    .class-list { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+    .class-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #f5f8fc; border-radius: 9px; }
+    .class-name { font-size: 13px; font-weight: 500; }
+    .class-count { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: var(--navy); }
+
+    /* MODAL */
+    .modal-bg { position: fixed; inset: 0; background: rgba(11,31,58,0.6); backdrop-filter: blur(5px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-bg.show { display: flex; }
+    .modal { background: var(--white); border-radius: 20px; max-width: 520px; width: 100%; box-shadow: 0 32px 80px rgba(0,0,0,0.3); overflow: hidden; animation: popIn 0.25s ease; }
+    @keyframes popIn { from{opacity:0;transform:scale(0.94)} to{opacity:1;transform:scale(1)} }
+    .modal-head { background: linear-gradient(135deg, var(--navy), var(--navy-light)); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .modal-head h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--white); }
+    .modal-close { width: 30px; height: 30px; background: rgba(255,255,255,0.12); border: none; border-radius: 50%; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: rgba(255,255,255,0.22); color: var(--white); }
+    .modal-body { padding: 24px; }
+    .det-row { display: flex; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .det-row:last-child { border: none; }
+    .det-lbl { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); min-width: 90px; padding-top: 2px; }
+    .det-val { font-size: 14px; flex: 1; line-height: 1.6; color: var(--ink); }
+
+    @media (max-width: 600px) { .page { padding: 16px; } nav { padding: 0 16px; } .nav-tag { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">📊 Community <span>Voice</span> <span class="nav-tag">Admin</span></div>
+  <div class="nav-right">
+    <span style="font-size:13px;color:rgba(255,255,255,0.4)" id="navDate"></span>
+    <button class="nav-btn nb-gold" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="nav-btn nb-outline" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">
+    <h1>Dashboard Overview</h1>
+    <p id="dashSub">Loading latest data…</p>
+  </div>
+
+  <!-- RESPONSE STATS -->
+  <div class="section-heading">📋 Response Statistics</div>
+  <div class="stats-grid" style="margin-bottom:32px">
+    <div class="stat-card rc">
+      <div class="stat-icon">📋</div>
+      <div class="stat-val" id="stTotal">—</div>
+      <div class="stat-lbl">Total Responses</div>
+      <div class="stat-note">All form submissions</div>
+    </div>
+    <div class="stat-card rc">
+      <div class="stat-icon">🏘️</div>
+      <div class="stat-val" id="stVillages">—</div>
+      <div class="stat-lbl">Unique Villages</div>
+      <div class="stat-note">Different locations</div>
+    </div>
+    <div class="stat-card rc">
+      <div class="stat-icon">🎓</div>
+      <div class="stat-val" id="stTopClass" style="font-size:20px;padding-top:8px">—</div>
+      <div class="stat-lbl">Most Active Class</div>
+      <div class="stat-note">Highest submissions</div>
+    </div>
+    <div class="stat-card rc">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-val" id="stTopInt" style="font-size:16px;padding-top:10px">—</div>
+      <div class="stat-lbl">Top Interest</div>
+      <div class="stat-note">Most selected</div>
+    </div>
+  </div>
+
+  <!-- VISITOR STATS -->
+  <div class="section-heading">👁️ Website Visitor Tracking</div>
+  <div class="stats-grid" style="margin-bottom:32px">
+    <div class="stat-card vc">
+      <div class="stat-icon">🌐</div>
+      <div class="stat-val" id="stTotalVisit">—</div>
+      <div class="stat-lbl">Total Page Visits</div>
+      <div class="stat-note">All time visits</div>
+    </div>
+    <div class="stat-card vc">
+      <div class="stat-icon">📅</div>
+      <div class="stat-val" id="stTodayVisit">—</div>
+      <div class="stat-lbl">Visits Today</div>
+      <div class="stat-note">Since midnight</div>
+    </div>
+    <div class="stat-card vc">
+      <div class="stat-icon">👤</div>
+      <div class="stat-val" id="stUniqueVisit">—</div>
+      <div class="stat-lbl">Unique Visitors</div>
+      <div class="stat-note">Different people</div>
+    </div>
+    <div class="stat-card vc">
+      <div class="stat-icon">📊</div>
+      <div class="stat-val" id="stConversion">—</div>
+      <div class="stat-lbl">Form Fill Rate</div>
+      <div class="stat-note">Visitors who submitted</div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">🎯 Interest Analytics</div></div>
+      <div class="int-chart" id="intChart"><div class="no-data">Loading…</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">🎓 Class Breakdown</div></div>
+      <div class="class-list" id="classList"><div class="no-data">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- SUBMISSIONS TABLE -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">📋 All Submissions</div>
+      <div class="panel-actions">
+        <button class="p-btn pb-outline" onclick="loadData()">↻ Refresh</button>
+        <button class="p-btn pb-navy" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="fSearch" placeholder="🔍  Search name, mobile, village…" oninput="debounce()"/>
+      <select id="fClass" onchange="loadData()">
+        <option value="">All Classes</option>
+        <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+        <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+        <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+        <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+        <option>Undergraduate</option><option>Postgraduate</option><option>Other</option>
+      </select>
+      <input type="text" id="fVillage" placeholder="Filter village…" oninput="debounce()" style="max-width:150px"/>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Village</th><th>Mobile</th>
+            <th>Class</th><th>Interests</th><th>Date</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tBody">
+          <tr><td colspan="8" class="no-data">Loading submissions…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pag">
+      <span id="pagInfo">—</span>
+      <div class="pag-btns" id="pagBtns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Submission Details</h3>
+      <button class="modal-close" onclick="closeModDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  let pg = 1, totalPg = 1, debTimer;
+
+  document.getElementById('navDate').textContent =
+    new Date().toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+
+  function debounce() { clearTimeout(debTimer); debTimer = setTimeout(() => { pg=1; loadData(); }, 400); }
+
+  async function loadStats() {
+    try {
+      const r = await fetch('/api/admin/stats');
+      if (!r.ok) { if (r.status===401) { location.href='/admin'; return; } throw 0; }
+      const d = await r.json();
+
+      // Response stats
+      document.getElementById('stTotal').textContent = d.total;
+      document.getElementById('stVillages').textContent = d.uniqueVillages;
+      document.getElementById('stTopClass').textContent = d.byClass[0]?.class_reading || '—';
+      document.getElementById('stTopInt').textContent = d.topInterests[0]?.interest || '—';
+
+      // Visitor stats
+      document.getElementById('stTotalVisit').textContent = d.totalVisitors ?? '—';
+      document.getElementById('stTodayVisit').textContent = d.todayVisitors ?? '—';
+      document.getElementById('stUniqueVisit').textContent = d.uniqueVisitors ?? '—';
+
+      // Conversion rate
+      if (d.totalVisitors > 0) {
+        const rate = Math.round((d.total / d.totalVisitors) * 100);
+        document.getElementById('stConversion').textContent = rate + '%';
+      } else {
+        document.getElementById('stConversion').textContent = '0%';
+      }
+
+      document.getElementById('dashSub').textContent =
+        `${d.total} response${d.total!==1?'s':''} · ${d.totalVisitors ?? 0} total visits · ${d.todayVisitors ?? 0} visits today — Updated just now`;
+
+      // Interest bars
+      const max = d.topInterests[0]?.count || 1;
+      document.getElementById('intChart').innerHTML = d.topInterests.slice(0,10).map(i => `
+        <div>
+          <div class="int-bar-top">
+            <span class="int-bar-name">${i.interest}</span>
+            <span class="int-bar-count">${i.count} response${i.count!=1?'s':''}</span>
+          </div>
+          <div class="int-bar-track">
+            <div class="int-bar-fill" style="width:${Math.round(i.count/max*100)}%"></div>
+          </div>
+        </div>`).join('') || '<div class="no-data">No data yet</div>';
+
+      // Class breakdown
+      document.getElementById('classList').innerHTML = d.byClass.slice(0,10).map(c => `
+        <div class="class-item">
+          <span class="class-name">${c.class_reading}</span>
+          <span class="class-count">${c.count}</span>
+        </div>`).join('') || '<div class="no-data">No data yet</div>';
+
+    } catch { console.warn('stats error'); }
+  }
+
+  async function loadData() {
+    const params = new URLSearchParams({ page: pg, limit: 15 });
+    const s = document.getElementById('fSearch').value;
+    const c = document.getElementById('fClass').value;
+    const v = document.getElementById('fVillage').value;
+    if (s) params.set('search', s);
+    if (c) params.set('class_reading', c);
+    if (v) params.set('village', v);
+    try {
+      const r = await fetch(`/api/admin/submissions?${params}`);
+      if (!r.ok) { if (r.status===401) { location.href='/admin'; return; } throw 0; }
+      const d = await r.json();
+      totalPg = d.pages;
+
+      const tbody = document.getElementById('tBody');
+      if (!d.submissions.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="no-data">No submissions found.</td></tr>';
+      } else {
+        tbody.innerHTML = d.submissions.map(row => `
+          <tr>
+            <td style="color:var(--muted);font-size:12px">#${row.id}</td>
+            <td>${row.name ? `<strong>${row.name}</strong>` : '<span class="td-anon">Anonymous</span>'}</td>
+            <td><strong>${row.village}</strong></td>
+            <td style="font-family:monospace;font-size:12px">${row.mobile}</td>
+            <td><span class="badge">${row.class_reading}</span></td>
+            <td style="max-width:200px;white-space:normal">${(row.interests||[]).map(i=>`<span class="badge">${i}</span>`).join('')}</td>
+            <td class="td-date">${new Date(row.submitted_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+            <td>
+              <div class="td-actions">
+                <button class="act-btn ab-view" onclick='viewRow(${JSON.stringify(JSON.stringify(row))})' title="View">👁</button>
+                <button class="act-btn ab-del" onclick="delRow(${row.id})" title="Delete">🗑</button>
+              </div>
+            </td>
+          </tr>`).join('');
+      }
+
+      const start = (pg-1)*15+1, end = Math.min(pg*15, d.total);
+      document.getElementById('pagInfo').textContent =
+        d.total===0 ? 'No results' : `Showing ${start}–${end} of ${d.total} submissions`;
+
+      let btns = `<button class="pag-btn" onclick="goPage(${pg-1})" ${pg<=1?'disabled':''}>← Prev</button>`;
+      for (let p=Math.max(1,pg-2); p<=Math.min(totalPg,pg+2); p++) {
+        btns += `<button class="pag-btn ${p===pg?'active':''}" onclick="goPage(${p})">${p}</button>`;
+      }
+      btns += `<button class="pag-btn" onclick="goPage(${pg+1})" ${pg>=totalPg?'disabled':''}>Next →</button>`;
+      document.getElementById('pagBtns').innerHTML = btns;
+    } catch { document.getElementById('tBody').innerHTML = '<tr><td colspan="8" class="no-data">Error loading data.</td></tr>'; }
+  }
+
+  function goPage(p) { if (p<1||p>totalPg) return; pg=p; loadData(); }
+
+  function viewRow(j) {
+    const row = JSON.parse(j);
+    document.getElementById('modalBody').innerHTML = `
+      <div class="det-row"><span class="det-lbl">ID</span><span class="det-val">#${row.id}</span></div>
+      <div class="det-row"><span class="det-lbl">Name</span><span class="det-val">${row.name||'<em style="color:var(--muted)">Not provided</em>'}</span></div>
+      <div class="det-row"><span class="det-lbl">Village</span><span class="det-val"><strong>${row.village}</strong></span></div>
+      <div class="det-row"><span class="det-lbl">Mobile</span><span class="det-val" style="font-family:monospace">${row.mobile}</span></div>
+      <div class="det-row"><span class="det-lbl">Class</span><span class="det-val">${row.class_reading}</span></div>
+      <div class="det-row"><span class="det-lbl">Interests</span><span class="det-val">${(row.interests||[]).map(i=>`<span class="badge">${i}</span>`).join(' ')}</span></div>
+      <div class="det-row"><span class="det-lbl">Opinion</span><span class="det-val">${row.opinion||'<em style="color:var(--muted)">Not provided</em>'}</span></div>
+      <div class="det-row"><span class="det-lbl">Submitted</span><span class="det-val">${new Date(row.submitted_at).toLocaleString('en-IN')}</span></div>`;
+    document.getElementById('modalBg').classList.add('show');
+  }
+  function closeMod(e) { if (e.target===document.getElementById('modalBg')) closeModDirect(); }
+  function closeModDirect() { document.getElementById('modalBg').classList.remove('show'); }
+
+  async function delRow(id) {
+    if (!confirm('Delete this submission permanently?')) return;
+    const r = await fetch(`/api/admin/submissions/${id}`, {method:'DELETE'});
+    if (r.ok) { loadData(); loadStats(); }
+    else alert('Delete failed.');
+  }
+
+  function exportCSV() { window.open('/api/admin/export', '_blank'); }
+  async function doLogout() { await fetch('/api/admin/logout', {method:'POST'}); location.href='/admin'; }
+
+  // Init
+  loadStats(); loadData();
+  setInterval(() => { loadStats(); loadData(); }, 60000);
+</script>
+</body>
+</html>
